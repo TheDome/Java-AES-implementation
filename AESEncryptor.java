@@ -20,7 +20,7 @@ public class AESEncryptor {
 	public static boolean debug = false;
 	public static operation_mode mode;
 	// The size of the key Must be an exponent of 2
-	private int keysize = 256;
+	private KEY_SIZE keysize = KEY_SIZE.KEYSIZE_256;
 	private byte[][] key;
 
 	// All the Files
@@ -38,46 +38,28 @@ public class AESEncryptor {
 	}
 
 	public AESEncryptor(String[] args) throws FileNotFoundException {
-		
-		if (args.length < 4) {
-			System.out.println("You have to specify at least 3 Arguments");
-			printUsage();
-			System.exit(1);
-		}
 
-		// Check arguments
-		for (int i = 0; i < args.length; i++) {
+		parseArgs(args);
 
-			switch (args[i]) {
-			case "-v":
-				debug = true;
-				break;
-			case "-k":
-				keyfile = new File(args[i + 1]);
-				break;
-			case "-e":
-				mode = operation_mode.MODE_ENCRYPT;
-				break;
-			case "-d":
-				mode = operation_mode.MODE_DECRYPT;
-				break;
-			case "-i":
-				inputfile = new File(args[i + 1]);
-				break;
-			case "-o":
-				outputfile = new File(args[i + 1]);
-				break;
+		// Test if all arguments passed ....
+		if (inputfile == null) {
+			try {
+				inputfile = new File(args[0]);
 
-			default:
-				break;
+				if (!inputfile.exists()) {
+					System.out.println("You have to specify a File for input!");
+					printUsage();
+					System.exit(1);
+				}
+
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 
-		// Test if all arguments passed ....
-		if(mode == null || inputfile == null || keyfile == null){ 
-			printUsage();
-			System.exit(1);
-		}
+		mode = mode == null ? operation_mode.MODE_ENCRYPT : mode;
+
+		if (keyfile == null) keyfile = new File(inputfile.getAbsolutePath() + ".aeskey");
 
 		print("Starting process ...");
 		if (mode == operation_mode.MODE_ENCRYPT) {
@@ -98,7 +80,7 @@ public class AESEncryptor {
 		print("To: " + outputfile.getAbsolutePath());
 		
 		if(mode == operation_mode.MODE_ENCRYPT){
-			
+
 			// If the keyfile exists
 			if(keyfile.exists()){
 				// Read the key in ...
@@ -110,15 +92,19 @@ public class AESEncryptor {
 				// Generate the key
 				genKey(keysize);
 			}
-			
+
+
+			if (!keyfile_exists) writeKey(key);
 			byte[] input = readInput(inputfile);
 			byte[] encrypted = encrypt(input, key);
 			writeOutput(encrypted, outputfile);
-			if(!keyfile_exists) writeKey(key);
 			
 		} else { // Decryption mode
 			// Read the key
-			if(keyfile == null) throw new FileNotFoundException("The keyfile specified cant be found");
+			System.out.println(keyfile.exists());
+			if (!keyfile.exists()) {
+				throw new FileNotFoundException("The Keyfile specified cant be found");
+			}
 			// Read the key in
 			readKey(keyfile);
 			
@@ -129,9 +115,68 @@ public class AESEncryptor {
 
 	}
 
+	private void parseArgs(String[] args) {
+
+		if (args.length < 1) {
+			System.out.println("You have to specify at least 1 Arguments: input File");
+			printUsage();
+			System.exit(1);
+		}
+
+		// Check arguments
+		for (int i = 0; i < args.length; i++) {
+
+			switch (args[i]) {
+				case "-v":
+					debug = true;
+					break;
+				case "-k":
+					keyfile = new File(args[i + 1]);
+					break;
+				case "-e":
+					mode = operation_mode.MODE_ENCRYPT;
+					break;
+				case "-d":
+					mode = operation_mode.MODE_DECRYPT;
+					break;
+				case "-i":
+					inputfile = new File(args[i + 1]);
+					break;
+				case "-o":
+					outputfile = new File(args[i + 1]);
+					break;
+				case "-s":
+					int size = Integer.parseInt(args[i + 1]);
+					for (KEY_SIZE k : KEY_SIZE.values()) {
+						if (k.getByteSize() == size) {
+							keysize = k;
+							break;
+						}
+					}
+					break;
+
+				default:
+					break;
+			}
+		}
+	}
+
+	private void printUsage() {
+
+		System.out.println("Usage:");
+		System.out.println("\t-i input file");
+		System.out.println("\t-o output file");
+		System.out.println("\t-e encryption mode");
+		System.out.println("\t-d decyption mode");
+		System.out.println("\t-k keyfile");
+		//System.out.println("\t-s Key-size (256, 512, 1024)");
+		System.out.println("\t[optional] -v verbose");
+
+	}
+
 	private void readKey(File keyfile) {
 		// the size iof every dimension
-		int dimsize = (int) Math.sqrt(keysize);
+		int dimsize = (int) keyfile.length();
 				
 		byte[][] aes_key = new byte[dimsize][dimsize];
 		byte[] keybytes = readInput(keyfile);
@@ -151,7 +196,7 @@ public class AESEncryptor {
 	private void writeKey(byte[][] key) {
 		
 		// The bytes to output later
-		byte[] out = new byte[keysize];
+		byte[] out = new byte[keysize.getByteSize()];
 		print("Saving Key ...");
 		
 		// The index
@@ -229,7 +274,7 @@ public class AESEncryptor {
 		}
 		
 		if(debug) System.out.println("");
-		debugln("Finished!");
+		print("Finished!");
 		System.out.println("");
 		
 		return encrypted;
@@ -276,8 +321,8 @@ public class AESEncryptor {
 						lower = (byte) y;
 						
 						output[i++] = (byte) (upper | lower);
-						
-						percent = (double) ( ( (double) Math.round( ((double) i / (double) in.length) * 10000) ) / 100);
+
+						percent = ((double) Math.round(((double) i / (double) in.length) * 10000)) / 100;
 						
 						
 						// Print the percent to the debug console
@@ -355,27 +400,15 @@ public class AESEncryptor {
 		}
 	}
 
-	private void printUsage() {
-
-		System.out.println("Usage:");
-		System.out.println("\t-i input file");
-		System.out.println("\t-o output file");
-		System.out.println("\t-e encryption mode");
-		System.out.println("\t-d decyption mode");
-		System.out.println("\t-k keyfile");
-		System.out.println("\t[optional] -v verbose");
-
-	}
-
 	/**
 	 * Generate the key for the encryption
 	 * @param keysize The size of the key. Please do not edit. Some fixes needed
 	 */
-	public void genKey(int keysize) {
+	public void genKey(KEY_SIZE keysize) {
 
 		print("Generating " + keysize + " Bit key ...");
 		// the size iof every dimension
-		int dimsize = (int) Math.sqrt(keysize);
+		int dimsize = (int) Math.sqrt(keysize.getByteSize());
 		byte[][] key = new byte[dimsize][dimsize];
 		// The RNG to generate
 		Random rnd = new Random();
@@ -412,8 +445,8 @@ public class AESEncryptor {
 				}
 				
 				key[x][y] = byte1[0];
-				
-				percent = ((double)Math.round( ( (double) i++ / (double) keysize) * 10000 ) / 100);
+
+				percent = ((double) Math.round(((double) i++ / (double) keysize.getByteSize()) * 10000) / 100);
 				
 				
 				// Print the percent to the debug console
