@@ -10,8 +10,8 @@ import java.util.Random;
 /**
  * This class is a simple definition of the AES Standart. It should de- and
  * encrypt a File
- * 
- * @author dominic.heun
+ *
+ * @author thedome
  *
  */
 public class AESEncryptor {
