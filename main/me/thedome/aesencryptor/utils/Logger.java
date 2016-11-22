@@ -22,12 +22,20 @@ public class Logger {
 	}
 
 	/**
+	 * Print an empty line
+	 */
+	public void emptyln() {
+		print("");
+	}
+
+	/**
 	 * Set the bebus level
 	 *
 	 * @param mode            The Debug mode
 	 * @param percentage_mode Should the percent be displayed
 	 */
 	public void setDebug(DEBUG_MODE mode, boolean percentage_mode) {
+		mode = mode == null ? DEBUG_MODE.MODE_SUPRESS : mode;
 		this.mode = mode;
 		this.percentage_mode = percentage_mode;
 	}

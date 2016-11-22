@@ -3,6 +3,7 @@ package main.me.thedome.aesencryptor.main;
 import main.me.thedome.aesencryptor.classes.DEBUG_MODE;
 import main.me.thedome.aesencryptor.classes.OPERATION_MODE;
 import main.me.thedome.aesencryptor.crypto.CryptoMethods;
+import main.me.thedome.aesencryptor.utils.ArgumentParser;
 import main.me.thedome.aesencryptor.utils.Logger;
 
 import java.io.File;
@@ -21,22 +22,30 @@ import java.nio.file.Paths;
  */
 public class AESEncryptor {
 
+	public final String VERSION = "1.0.1";
 	// The size of the key Must be an exponent of 2
 	private final int KEYSIZE = 256;
 	private final CryptoMethods methods = new CryptoMethods();
 	private final Logger logger = Logger.getInstance();
-	private boolean percentage_mode = false;
-	private OPERATION_MODE mode;
-	private byte[][] key;
+
+	public boolean percentage_mode = false;
+	public DEBUG_MODE debMode;
+
+	public OPERATION_MODE mode;
 	// All the Files
-	private File inputfile;
-	private File keyfile;
+	public File inputfile;
+	public File keyfile;
+	public File outputfile;
+	private byte[][] key;
 	private boolean keyfile_exists;
-	private File outputfile;
 
 	private AESEncryptor(String[] args) throws FileNotFoundException {
 
-		parseArgs(args);
+
+		ArgumentParser parser = new ArgumentParser(args, this);
+		parser.parseArgs();
+
+		logger.setDebug(debMode, percentage_mode);
 
 		// Test if all arguments passed ....
 		if (inputfile == null) {
@@ -45,7 +54,7 @@ public class AESEncryptor {
 
 				if (!inputfile.exists()) {
 					System.out.println("You have to specify a File for input!");
-					printUsage();
+					ArgumentParser.printHelp();
 					System.exit(1);
 				}
 
@@ -59,6 +68,8 @@ public class AESEncryptor {
 		if (keyfile == null) keyfile = new File(inputfile.getAbsolutePath() + ".aeskey");
 
 		logger.print("Starting process ...");
+		logger.emptyln();
+
 		if (mode == OPERATION_MODE.MODE_ENCRYPT) {
 			logger.debugln("Selected mode: encryption");
 
@@ -75,6 +86,7 @@ public class AESEncryptor {
 		logger.debugln("With keyfile: " + keyfile.getAbsolutePath());
 		logger.print("With input File: " + inputfile.getAbsolutePath());
 		logger.print("To: " + outputfile.getAbsolutePath());
+		logger.emptyln();
 
 		if (mode == OPERATION_MODE.MODE_ENCRYPT) {
 
@@ -116,62 +128,7 @@ public class AESEncryptor {
 		new AESEncryptor(args);
 	}
 
-	private void parseArgs(String[] args) {
 
-		if (args.length < 1) {
-			System.out.println("You have to specify at least 1 Arguments: input File");
-			printUsage();
-			System.exit(1);
-		}
-
-		// Check arguments
-		for (int i = 0; i < args.length; i++) {
-
-			switch (args[i]) {
-				case "-v":
-					boolean debug = true;
-					break;
-				case "-k":
-					keyfile = new File(args[i + 1]);
-					break;
-				case "-e":
-					mode = OPERATION_MODE.MODE_ENCRYPT;
-					break;
-				case "-d":
-					mode = OPERATION_MODE.MODE_DECRYPT;
-					break;
-				case "-i":
-					inputfile = new File(args[i + 1]);
-					break;
-				case "-o":
-					outputfile = new File(args[i + 1]);
-					break;
-				case "-h":
-					printUsage();
-					System.exit(1);
-					break;
-				case "-p":
-
-
-				default:
-					break;
-			}
-		}
-	}
-
-	private void printUsage() {
-
-		System.out.println("Usage:");
-		System.out.println("\t-i input file");
-		System.out.println("\t-o output file");
-		System.out.println("\t-e encryption mode");
-		System.out.println("\t-d decyption mode");
-		System.out.println("\t-k keyfile");
-		System.out.println("\t-h display this help");
-		System.out.println("\t-p Enable the percentage display mode (may not be enabled due the debug mode)");
-		System.out.println("\t[optional] -v verbose");
-
-	}
 
 	private void readKey(File keyfile) {
 		// the size iof every dimension
