@@ -96,7 +96,8 @@ public class AESEncryptor {
 				readKey(keyfile);
 				// Tell the system, that we use one ...
 				keyfile_exists = true;
-				logger.debugln("Found preexisting key");
+				logger.debugln("Found preexisting key at: " + keyfile.getAbsolutePath());
+				logger.print("Found existing key. Using it!");
 			} else { // else
 				// Generate the key
 				key = methods.genKey(KEYSIZE);
@@ -110,7 +111,6 @@ public class AESEncryptor {
 
 		} else { // Decryption mode
 			// Read the key
-			System.out.println(keyfile.exists());
 			if (!keyfile.exists()) {
 				throw new FileNotFoundException("The Keyfile specified cant be found");
 			}
@@ -131,6 +131,7 @@ public class AESEncryptor {
 
 
 	private void readKey(File keyfile) {
+		logger.debugln("Reading key from: " + keyfile.getAbsolutePath());
 		// the size iof every dimension
 		int dimsize = (int) Math.sqrt(keyfile.length());
 
@@ -145,6 +146,8 @@ public class AESEncryptor {
 				aes_key[ax][ay] = keybytes[i++];
 			}
 		}
+		logger.debugln("Finished reading!");
+		logger.debug("", false);
 
 		this.key = aes_key;
 	}

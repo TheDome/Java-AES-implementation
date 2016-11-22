@@ -38,6 +38,7 @@ public class Logger {
 		mode = mode == null ? DEBUG_MODE.MODE_SUPRESS : mode;
 		this.mode = mode;
 		this.percentage_mode = percentage_mode;
+		debugln("Starting Logging Factory with debug level: " + mode.level);
 	}
 
 	/**
@@ -77,7 +78,7 @@ public class Logger {
 	 * @param display_message Should the message "[DEBUG]" be displayed
 	 */
 	public void debug(String text, boolean display_message) {
-		if (mode.level <= DEBUG_MODE.MODE_NORMAL.level) {
+		if (mode.level >= DEBUG_MODE.MODE_NORMAL.level) {
 			if (display_message) {
 				print("[DEBUG] " + text, false);
 			} else {
@@ -93,7 +94,7 @@ public class Logger {
 	 * @param display_message Should the message "[DEBUG]" be displayed
 	 */
 	public void debugln(String text, boolean display_message) {
-		if (mode.level <= DEBUG_MODE.MODE_NORMAL.level) {
+		if (mode.level >= DEBUG_MODE.MODE_NORMAL.level) {
 			if (display_message) {
 				print("[DEBUG] " + text, true);
 			} else {
@@ -132,12 +133,28 @@ public class Logger {
 	 * @throws IllegalArgumentException If the percent are higher than 100
 	 */
 	public void percent(double percent) throws IllegalArgumentException {
+		percent(percent, false);
+	}
+
+	/**
+	 * Print a percent value
+	 *
+	 * @param percent The value of percent finished to max of 100
+	 * @param force   Force the value to be printed
+	 *
+	 * @throws IllegalArgumentException If the percent are higher than 100
+	 */
+	public void percent(double percent, boolean force) {
 
 		if (percent > 100) throw new IllegalArgumentException("Percent my not be greater than 100!");
-		if ((mode.level < DEBUG_MODE.MODE_NORMAL.level) || !percentage_mode) return;
+		if (!force) {
+			if (!percentage_mode) {
+				if (mode.level < DEBUG_MODE.MODE_NORMAL.level) return;
+			}
+		}
 
 		// Erease line
-		debug("\r", false);
+		print("\r", false);
 
 		String hashtags = "";
 		for (int i = 0; i < (percent / 10); i++) {
@@ -148,9 +165,9 @@ public class Logger {
 		}
 
 		if (percentage_mode) {
-			debug("[" + hashtags + "] " + percent + "% of process complete ...", false);
+			print("[" + hashtags + "] " + percent + "% of process complete ...", false);
 		} else {
-			debug("[" + hashtags + "] " + percent + "% of process complete ...", DEBUG_MODE.MODE_ALL);
+			print("[DEBUG] [" + hashtags + "] " + percent + "% of process complete ...", false);
 		}
 	}
 
