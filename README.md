@@ -4,13 +4,16 @@ This here is a simple implementation of the AES Algorythm based on the one from 
 
 #Usage:
 If you only want to encrypt:  
-`[name] inputfile`
+`[name] inputfile`  
+Then the key will be stored as inputfile.aeskey and the outputfile will be stored as inputfile.enc
 
 For encryption with a specific key  
-`[name] -i inputfile -k keyfile -e`
+`[name] -i inputfile -k keyfile -e`  
+Then the output will be stored as inputfile.enc
 
 For the decryption  
-`[name] -i inputfile -k keyfile -d`
+`[name] -i inputfile -k keyfile -d`  
+Here the file to output will be stored (as not other mentioned) as inputfile  minus the last 4 characters (default without .enc)
 
 All arguments:  
 
