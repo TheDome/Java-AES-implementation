@@ -17,11 +17,12 @@ Here the file to output will be stored (as not other mentioned) as inputfile  mi
 
 All arguments:  
 
-    -i inputfile     File for input
-    -h               Display the help  
-    -o output        File for output  
-    -k keyfile       File of the key  
-    -v               Enable the verbose mode  
-    -p               Enable the percentag mode to display the percent finished (May spam some command promts)  
-    -e or -d         Encryption or decryption mode  
+    -i inputfile        File for input
+    -h                  Display the help  
+    -o output           File for output  
+    -k keyfile          File of the key  
+    -v [optional] mode  Enable the verbose mode  
+    -p                  Enable the percentag mode to display the percent finished (May spam some command promts)  
+    -e or -d            Encryption or decryption mode  
+    -p                  Enable the percentage mode to display percent (Slows down encryption)
  
