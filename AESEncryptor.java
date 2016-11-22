@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * This class is a simple definition of the AES Standart. It should de- and
+ * This class is a simple definition of the AES standart. It should de- and
  * encrypt a File
  *
  * @author thedome
@@ -16,28 +16,21 @@ import java.util.Random;
  */
 public class AESEncryptor {
 
-	// Debug mode?
-	public static boolean debug = false;
-	public static operation_mode mode;
 	// The size of the key Must be an exponent of 2
-	private KEY_SIZE keysize = KEY_SIZE.KEYSIZE_256;
+	private final int KEYSIZE = 256;
+	// Debug mode?
+	private boolean debug = false;
+	private boolean percentage_mode = false;
+	private operation_mode mode;
 	private byte[][] key;
 
 	// All the Files
-	public File inputfile;
-	public File keyfile;
+	private File inputfile;
+	private File keyfile;
 	private boolean keyfile_exists;
-	public File outputfile;
+	private File outputfile;
 
-	enum operation_mode {
-		MODE_ENCRYPT, MODE_DECRYPT
-	}
-
-	public static void main(String[] args) throws Exception {
-		new AESEncryptor(args);
-	}
-
-	public AESEncryptor(String[] args) throws FileNotFoundException {
+	private AESEncryptor(String[] args) throws FileNotFoundException {
 
 		parseArgs(args);
 
@@ -64,13 +57,13 @@ public class AESEncryptor {
 		print("Starting process ...");
 		if (mode == operation_mode.MODE_ENCRYPT) {
 			debugln("Selected mode: encryption");
-			
+
 			if (outputfile == null) {
 				outputfile = new File(inputfile.getAbsolutePath() + ".enc");
 			}
 		} else {
 			debugln("Selected mode: decryption");
-			
+
 			if (outputfile == null) {
 				outputfile = new File(inputfile.getAbsolutePath().substring(0, inputfile.getAbsolutePath().length() - 4));
 			}
@@ -78,7 +71,7 @@ public class AESEncryptor {
 		debugln("With keyfile: " + keyfile.getAbsolutePath());
 		print("With input File: " + inputfile.getAbsolutePath());
 		print("To: " + outputfile.getAbsolutePath());
-		
+
 		if(mode == operation_mode.MODE_ENCRYPT){
 
 			// If the keyfile exists
@@ -90,7 +83,7 @@ public class AESEncryptor {
 				debugln("Found preexisting key");
 			} else { // else
 				// Generate the key
-				genKey(keysize);
+				genKey(KEYSIZE);
 			}
 
 
@@ -98,7 +91,7 @@ public class AESEncryptor {
 			byte[] input = readInput(inputfile);
 			byte[] encrypted = encrypt(input, key);
 			writeOutput(encrypted, outputfile);
-			
+
 		} else { // Decryption mode
 			// Read the key
 			System.out.println(keyfile.exists());
@@ -107,12 +100,16 @@ public class AESEncryptor {
 			}
 			// Read the key in
 			readKey(keyfile);
-			
+
 			byte[] input = readInput(inputfile);
 			byte[] encrypted = decrypt(input, key);
 			writeOutput(encrypted, outputfile);
 		}
 
+	}
+
+	public static void main(String[] args) throws Exception {
+		new AESEncryptor(args);
 	}
 
 	private void parseArgs(String[] args) {
@@ -145,15 +142,12 @@ public class AESEncryptor {
 				case "-o":
 					outputfile = new File(args[i + 1]);
 					break;
-				case "-s":
-					int size = Integer.parseInt(args[i + 1]);
-					for (KEY_SIZE k : KEY_SIZE.values()) {
-						if (k.getByteSize() == size) {
-							keysize = k;
-							break;
-						}
-					}
+				case "-h":
+					printUsage();
+					System.exit(1);
 					break;
+				case "-p":
+
 
 				default:
 					break;
@@ -169,7 +163,8 @@ public class AESEncryptor {
 		System.out.println("\t-e encryption mode");
 		System.out.println("\t-d decyption mode");
 		System.out.println("\t-k keyfile");
-		//System.out.println("\t-s Key-size (256, 512, 1024)");
+		System.out.println("\t-h display this help");
+		System.out.println("\t-p Enable the percentage display mode (may not be enabled due the debug mode)");
 		System.out.println("\t[optional] -v verbose");
 
 	}
@@ -177,53 +172,53 @@ public class AESEncryptor {
 	private void readKey(File keyfile) {
 		// the size iof every dimension
 		int dimsize = (int) keyfile.length();
-				
+
 		byte[][] aes_key = new byte[dimsize][dimsize];
 		byte[] keybytes = readInput(keyfile);
-		
+
 		// The index
 		int i = 0;
-		
+
 		for (int ax = 0; ax < aes_key.length; ax++){
 			for(int ay = 0; ay < aes_key[ax].length; ay++){
 				aes_key[ax][ay] = keybytes[i++];
 			}
 		}
-		
+
 		this.key = aes_key;
 	}
 
 	private void writeKey(byte[][] key) {
-		
+
 		// The bytes to output later
-		byte[] out = new byte[keysize.getByteSize()];
+		byte[] out = new byte[KEYSIZE];
 		print("Saving Key ...");
-		
+
 		// The index
 		int i = 0;
-		
+
 		for(byte[] b : key){
 			for (byte b1 : b){
 				out[i++] = b1;
 			}
 		}
-		
+
 		debugln("Writing key to File: " + keyfile.getAbsolutePath());
 		writeOutput(out, keyfile);
-		
+
 	}
 
-	public void debugln(String text) {
+	private void debugln(String text) {
 		if (debug)
 			System.out.println("[DEBUG] " + text);
 	}
-	
-	public void debug(String text){
+
+	private void debug(String text) {
 		if (debug)
 			System.out.print("[DEBUG] " + text);
 	}
 
-	public void print(String text) {
+	private void print(String text) {
 		System.out.println(text);
 	}
 
@@ -233,50 +228,50 @@ public class AESEncryptor {
 	 * @param key The key used for encryption
 	 * @return The encrypted bytes
 	 */
-	public byte[] encrypt(byte[] in, byte[][] key) {
+	private byte[] encrypt(byte[] in, byte[][] key) {
 		byte[] encrypted = new byte[in.length];
-		
+
 		// Notify the user
 		print("Starting encryption ...");
-		
+
 		byte upper;
 		byte lower;
 		// The index
 		int i = 0;
 		// The value of the encrypted
-		double percent = 0;
-		
+		double percent;
+
 		System.out.println("");
 		debugln("Encrypting: ...");
 		// All the bytes in the array will be encrypted
 		for(byte b : in){
-			
+
 			for(int i1 =0; i1 < 60; i1++) System.out.print("\b");
-			
-			
+
+
 			// The upper 4 bits of the byte
 			// 0100 0110 -> 0100 0000 -> 0000 0100
 			upper = (byte) ((b & 0xF0) >> 4);
-			
+
 			// The lower 4 bits of the byte
 			// 0100 0110 -> 0000 0110
 			lower = (byte) (b & 0x0F);
-			
+
 			// Swap the with the key bytes
 			encrypted[i++] = key[upper][lower];
-			
-			// Compure the percentage rate of the process
+
+			// Compute the percentage rate of the process
 			percent = (double) Math.round(((double) i / (double) in.length) * 10000) / 100;
-			
-			
+
+
 			percentln(percent);
-			
+
 		}
-		
+
 		if(debug) System.out.println("");
 		print("Finished!");
 		System.out.println("");
-		
+
 		return encrypted;
 	}
 
@@ -286,28 +281,28 @@ public class AESEncryptor {
 	 * @param key The Key used to encrypt
 	 * @return The decrypted bytes
 	 */
-	public byte[] decrypt(byte[] in, byte[][] key) {
-		
+	private byte[] decrypt(byte[] in, byte[][] key) {
+
 		print("Starting decryption ...");
 		// The output
 		byte[] output = new byte[in.length];
-		
+
 		// The index o the loop
 		int i = 0;
 		// The upper 4 bits
 		byte upper;
 		// The lower 4 bits
 		byte lower;
-		// The percent 
-		double percent = 0;
-		
+		// The percent
+		double percent;
+
 		// Should we exit?
-		boolean exit = false;
-		
+		boolean exit;
+
 		debugln("Decrypting " + in.length + " Bytes ...");
 		System.out.println("");
 		debugln("Decrypting: ");
-		
+
 		for (byte b : in){
 			exit = false;
 			for(int x = 0; x < key.length; x++){
@@ -315,40 +310,42 @@ public class AESEncryptor {
 					if(b == key[x][y]){
 						// Exit the next loop
 						exit = true;
-						
+
 						// We found the equivalent bytes in the grid....
 						upper = (byte) (x << 4);
 						lower = (byte) y;
-						
+
 						output[i++] = (byte) (upper | lower);
 
 						percent = ((double) Math.round(((double) i / (double) in.length) * 10000)) / 100;
-						
-						
+
+
 						// Print the percent to the debug console
 						percentln(percent);
-						
+
 						break;
-						
+
 					}
 				}
-				
+
 				// We found, what we needed ... exit
 				if(exit)break;
 			}
-			
+
 		}
-		
+
 		if(debug) System.out.println("");
 		print("Finished ...");
-		
+
 		return output;
 	}
-	
-	
+
 	private void percentln(double percent) {
+
+		if (!debug || !percentage_mode) return;
+
 		debug("\r");
-		
+
 		String hashtags = "";
 		for(int i = 0; i < (percent / 10); i++){
 			hashtags += "#";
@@ -356,18 +353,23 @@ public class AESEncryptor {
 		while(hashtags.length() < 10){
 			hashtags += " ";
 		}
-		
-		
-		debug("[" +hashtags + "] " + percent + "% of process complete ...");
-	}
 
+		if (percentage_mode) {
+			System.out.print("[" + hashtags + "] " + percent + "% of process complete ...");
+		} else {
+			debug("[" + hashtags + "] " + percent + "% of process complete ...");
+		}
+
+
+	}
+	
 	/**
 	 * This Function reads all the bytes of a File
 	 * @return The bytes of the File
 	 */
-	public byte[] readInput(File file){
+	private byte[] readInput(File file) {
 		byte[] b = null;
-		
+
 		// The path for the File
 		Path p = Paths.get(file.getAbsolutePath());
 		try {
@@ -377,19 +379,18 @@ public class AESEncryptor {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
-		
+
+
 		return b;
 	}
-	
+
 	/**
 	 * This function writes all the Bytes to a File
 	 * @param bytes The bytes from the methods
 	 * @param output The File to output
-	 * @throws IOException 
 	 */
-	public void writeOutput(byte[] bytes, File output){
-		
+	private void writeOutput(byte[] bytes, File output) {
+
 		// The path for the File
 		Path p = Paths.get(output.getAbsolutePath());
 		try {
@@ -404,60 +405,64 @@ public class AESEncryptor {
 	 * Generate the key for the encryption
 	 * @param keysize The size of the key. Please do not edit. Some fixes needed
 	 */
-	public void genKey(KEY_SIZE keysize) {
+	private void genKey(int keysize) {
 
 		print("Generating " + keysize + " Bit key ...");
 		// the size iof every dimension
-		int dimsize = (int) Math.sqrt(keysize.getByteSize());
+		int dimsize = (int) Math.sqrt(KEYSIZE);
 		byte[][] key = new byte[dimsize][dimsize];
 		// The RNG to generate
 		Random rnd = new Random();
-		
+
 		// How far is the generation?
 		double percent;
 		int i = 0;
-		
+
 		// Byte unique
-		boolean unique = true;
-		
+		boolean unique;
+
 		// To uniquify the key
 		ArrayList<Byte> keybytes = new ArrayList<>();
-		
+
 		System.out.println("");
 		debugln("Generating key: ");
-		
+
 		for(int x = 0; x < dimsize; x++){
 			for(int y = 0; y < dimsize; y++){
-				
+
 				// next run ...
 				unique = true;
-				
+
 				debug("\r"); // Erase line content
-				
+
 				// Get every single content
 				byte[] byte1 = new byte[1];
-				
+
 				while(unique){
 					rnd.nextBytes(byte1);
-					
+
 					unique = keybytes.contains(byte1[0]);
 					keybytes.add(byte1[0]);
 				}
-				
+
 				key[x][y] = byte1[0];
 
-				percent = ((double) Math.round(((double) i++ / (double) keysize.getByteSize()) * 10000) / 100);
-				
-				
+				percent = ((double) Math.round(((double) i++ / (double) KEYSIZE) * 10000) / 100);
+
+
 				// Print the percent to the debug console
 				percentln(percent);
-				
-				
-				}
+
+
 			}
-			
-		
+			}
+
+
 		this.key = key;
 
+	}
+
+	private enum operation_mode {
+		MODE_ENCRYPT, MODE_DECRYPT
 	}
 }
