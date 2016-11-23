@@ -18,6 +18,7 @@ public class ArgumentParser {
 	private final ArrayList<String> args;
 	private int index = 0;
 	private AESEncryptor aec;
+	private IOUtils utils = IOUtils.getInstance();
 
 
 	public ArgumentParser(String[] args, AESEncryptor encclass) {
@@ -79,11 +80,10 @@ public class ArgumentParser {
 						level = DEBUG_MODE.MODE_NORMAL.level;
 					}
 
-					DEBUG_MODE mode = DEBUG_MODE.MODE_NORMAL.getByLevel(level);
-					aec.debMode = mode;
+					aec.debMode = DEBUG_MODE.MODE_NORMAL.getByLevel(level);
 					break;
 				case "-k":
-					aec.keyfile = new File(nextArgument());
+					utils.keyfile = new File(nextArgument());
 					break;
 				case "-e":
 					aec.mode = OPERATION_MODE.MODE_ENCRYPT;
@@ -92,10 +92,10 @@ public class ArgumentParser {
 					aec.mode = OPERATION_MODE.MODE_DECRYPT;
 					break;
 				case "-i":
-					aec.inputfile = new File(nextArgument());
+					utils.inputfile = new File(nextArgument());
 					break;
 				case "-o":
-					aec.outputfile = new File(nextArgument());
+					utils.outputfile = new File(nextArgument());
 					break;
 				case "-h":
 					printHelp();
@@ -117,7 +117,7 @@ public class ArgumentParser {
 
 	private void checkForSingleArgs() {
 		if (args.size() == 1) {
-			aec.inputfile = new File(args.get(0));
+			utils.inputfile = new File(args.get(0));
 		}
 	}
 

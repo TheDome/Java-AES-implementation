@@ -1,6 +1,7 @@
 package main.me.thedome.aesencryptor.crypto;
 
 import main.me.thedome.aesencryptor.classes.DEBUG_MODE;
+import main.me.thedome.aesencryptor.utils.IOUtils;
 import main.me.thedome.aesencryptor.utils.Logger;
 
 import java.util.ArrayList;
@@ -14,8 +15,11 @@ public class CryptoMethods {
 
 	private final Logger logger = Logger.getInstance();
 
+	IOUtils iostuff;
+
 	public CryptoMethods() {
 		super();
+		iostuff = IOUtils.getInstance();
 	}
 
 	/**
@@ -23,9 +27,8 @@ public class CryptoMethods {
 	 *
 	 * @param in  The bytes to be encrypted
 	 * @param key The key used for encryption
-	 * @return The encrypted bytes
 	 */
-	public byte[] encrypt(byte[] in, byte[][] key) {
+	public void encrypt(byte[] in, byte[][] key) {
 		byte[] encrypted = new byte[in.length];
 
 		// Notify the user
@@ -43,6 +46,11 @@ public class CryptoMethods {
 		// All the bytes in the array will be encrypted
 		for (byte b : in) {
 
+			// we have encrypted one KB write it
+			if (i == 1024) {
+				iostuff.writeChunkedOutput(encrypted);
+				i = 0;
+			}
 
 			// The upper 4 bits of the byte
 			// 0100 0110 -> 0100 0000 -> 0000 0100
@@ -63,10 +71,11 @@ public class CryptoMethods {
 
 		}
 
+		// Write the last encrypted bytes to the File
+		iostuff.writeChunkedOutput(encrypted);
+
 		logger.debug("", false);
 		logger.print("Finished!");
-
-		return encrypted;
 	}
 
 	/**
@@ -74,9 +83,8 @@ public class CryptoMethods {
 	 *
 	 * @param in  The Input bytes
 	 * @param key The Key used to encrypt
-	 * @return The decrypted bytes
 	 */
-	public byte[] decrypt(byte[] in, byte[][] key) {
+	public void decrypt(byte[] in, byte[][] key) {
 
 		logger.print("Starting decryption ...");
 		// The output
@@ -113,6 +121,16 @@ public class CryptoMethods {
 
 						output[i++] = (byte) (upper | lower);
 
+						// we have encrypted one KB write it
+						if (i == 1024) {
+							iostuff.writeChunkedOutput(output);
+							i = 0;
+						}
+
+						/*
+						* all the percentage handeling
+						*/
+
 						percent = ((double) Math.round(((double) i / (double) in.length) * 10000)) / 100;
 
 
@@ -135,10 +153,11 @@ public class CryptoMethods {
 
 		}
 
+		// Write the last decrypted bytes to the File
+		iostuff.writeChunkedOutput(output);
+
 		logger.debug("", DEBUG_MODE.MODE_ALL);
 		logger.print("Finished ...");
-
-		return output;
 	}
 
 	/**
