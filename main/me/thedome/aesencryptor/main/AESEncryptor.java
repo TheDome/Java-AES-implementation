@@ -179,6 +179,17 @@ public class AESEncryptor {
 	 * @return The bytes of the File
 	 */
 	private byte[] readInput(File file) {
+
+		if (!file.exists()) {
+			logger.print("Failed to find: " + file.getAbsolutePath());
+			try {
+				throw new FileNotFoundException("You have to Specify the correct filefor input!");
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+
 		byte[] b = null;
 
 		// The path for the File
