@@ -29,7 +29,9 @@ public class CryptoMethods {
 	 * @param key The key used for encryption
 	 */
 	public void encrypt(byte[] in, byte[][] key) {
-		byte[] encrypted = new byte[in.length];
+
+		// We only need 1024 bytes cause every 1024 Bytes we write all to the File
+		byte[] encrypted = new byte[1024];
 
 		// Notify the user
 		logger.print("Starting encryption ...");
@@ -40,6 +42,11 @@ public class CryptoMethods {
 		int i = 0;
 		// The value of the encrypted
 		double percent;
+		// The iterations of the loop
+		int loopIters = 0;
+
+		// Open the outputStream
+		iostuff.setOut();
 
 		logger.debug("", false);
 		logger.debugln("Encrypting: ...");
@@ -64,7 +71,7 @@ public class CryptoMethods {
 			encrypted[i++] = key[upper][lower];
 
 			// Compute the percentage rate of the process
-			percent = (double) Math.round(((double) i / (double) in.length) * 10000) / 100;
+			percent = (double) Math.round(((double) loopIters++ / (double) in.length) * 10000) / 100;
 
 
 			logger.percent(percent);
@@ -76,6 +83,9 @@ public class CryptoMethods {
 
 		logger.debug("", false);
 		logger.print("Finished!");
+
+		// Close the outputstream
+		iostuff.killOut();
 	}
 
 	/**
@@ -91,7 +101,7 @@ public class CryptoMethods {
 		byte[] output = new byte[in.length];
 
 
-		// The index o the loop
+		// The index 0 the loop
 		int i = 0;
 		// The upper 4 bits
 		byte upper;

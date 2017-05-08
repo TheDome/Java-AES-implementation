@@ -28,6 +28,9 @@ public class IOUtils extends Thread {
 	Logger logger = Logger.getInstance();
 	AESEncryptor enc;
 
+	// The Standarts
+	FileOutputStream out;
+
 	private IOUtils() {
 		logger = Logger.getInstance();
 		this.start();
@@ -44,6 +47,27 @@ public class IOUtils extends Thread {
 	 */
 	public void setAEC(AESEncryptor enc) {
 		this.enc = enc;
+		try {
+			this.out = new FileOutputStream(outputfile, true);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void setOut() {
+		try {
+			this.out = new FileOutputStream(outputfile, true);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void killOut() {
+		try {
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -122,18 +146,11 @@ public class IOUtils extends Thread {
 
 		try {
 			if (!file.exists()) file.createNewFile();
-			logger.debug("Writing chunk to File: " + file.getAbsolutePath());
-
-			FileOutputStream out = new FileOutputStream(file);
 
 			out.write(data);
 
 			// Flush all to the File
 			out.flush();
-
-			// Close the stream
-			out.close();
-
 
 		} catch (Exception e) {
 			e.printStackTrace();

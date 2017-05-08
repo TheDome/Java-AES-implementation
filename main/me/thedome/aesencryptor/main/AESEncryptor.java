@@ -53,6 +53,7 @@ public class AESEncryptor {
 			logger.debugln("Selected mode: encryption");
 
 			if (fileUtils.outputfile == null) {
+				logger.debug("Found no file to output. Writing to: " + fileUtils.inputfile.getAbsolutePath() + ".enc", DEBUG_MODE.MODE_NORMAL);
 				fileUtils.outputfile = new File(fileUtils.inputfile.getAbsolutePath() + ".enc");
 			}
 		} else {
