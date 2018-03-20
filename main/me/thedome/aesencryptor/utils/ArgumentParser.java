@@ -33,7 +33,10 @@ public class ArgumentParser {
 	 */
 	public static void printHelp() {
 
-		System.out.println("Usage:");
+		System.out.println("Usage: [name] inputfile for an only encryption");
+		System.out.println("Usage: [name] -i inputfile -k key for an encryption with a key");
+		System.out.println("Usage: [name] -i inputfile -k key -d for a decryption with a key");
+		System.out.println("\nOther parameters to pass:");
 		System.out.println("\t-i input file");
 		System.out.println("\t-o output file");
 		System.out.println("\t-e encryption mode");
@@ -41,7 +44,7 @@ public class ArgumentParser {
 		System.out.println("\t-k keyfile");
 		System.out.println("\t-h display this help");
 		System.out.println("\t-p Enable the percentage display mode (may not be enabled due the debug mode)");
-		System.out.println("\t[optional] -v [optional] level (0,1,2) Enable verbose mode with level");
+		System.out.println("\t[optional] -v [optional] level (0,1,2) Enable verbose mode with level (default:1)");
 
 		System.exit(1);
 
