@@ -81,6 +81,10 @@ public class CryptoMethods {
 			percentage = (double) Math.round(((double) loopIters++ / (double) in.length) * 10000) / 100;
 
 
+			// Print at least 0, 25, 50, 75, 100%
+			int tmpPer = (int) Math.round(percentage);
+			if (tmpPer == 0 || tmpPer == 50 || tmpPer == 75 || tmpPer == 100) logger.percent(tmpPer, true);
+
 			logger.percent(percent);
 
 		}
