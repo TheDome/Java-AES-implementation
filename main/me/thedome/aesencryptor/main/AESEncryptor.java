@@ -36,7 +36,7 @@ public class AESEncryptor {
 
 	private AESEncryptor(String[] args) throws FileNotFoundException {
 
-		fileUtils.setAEC(this);
+		fileUtils.setAESENC(this);
 		ArgumentParser parser = new ArgumentParser(args, this);
 		parser.parseArgs();
 

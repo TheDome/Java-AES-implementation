@@ -45,13 +45,8 @@ public class IOUtils extends Thread {
 	 *
 	 * @param enc The Main Class
 	 */
-	public void setAEC(AESEncryptor enc) {
+	public void setAESENC(AESEncryptor enc) {
 		this.enc = enc;
-		try {
-			this.out = new FileOutputStream(outputfile, true);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
 	}
 
 	public void setOut() {
