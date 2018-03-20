@@ -3,6 +3,7 @@ package main.me.thedome.aesencryptor.crypto;
 import main.me.thedome.aesencryptor.classes.DEBUG_MODE;
 import main.me.thedome.aesencryptor.utils.IOUtils;
 import main.me.thedome.aesencryptor.utils.Logger;
+import main.me.thedome.aesencryptor.utils.percentageThread;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -14,8 +15,12 @@ import java.util.Random;
 public class CryptoMethods {
 
 	private final Logger logger = Logger.getInstance();
-
 	IOUtils iostuff;
+
+	// The percentage of the current operation
+	public double percentage;
+	// A thread to print the current percentage
+	private percentageThread percentageThread = new percentageThread(this);
 
 	public CryptoMethods() {
 		super();
@@ -41,9 +46,11 @@ public class CryptoMethods {
 		// The index
 		int i = 0;
 		// The value of the encrypted
-		double percent;
+		double percent = 0;
 		// The iterations of the loop
 		int loopIters = 0;
+
+		percentageThread.start(); // Start the output of the current percentage
 
 		// Open the outputStream
 		iostuff.setOut();
@@ -71,7 +78,7 @@ public class CryptoMethods {
 			encrypted[i++] = key[upper][lower];
 
 			// Compute the percentage rate of the process
-			percent = (double) Math.round(((double) loopIters++ / (double) in.length) * 10000) / 100;
+			percentage = (double) Math.round(((double) loopIters++ / (double) in.length) * 10000) / 100;
 
 
 			logger.percent(percent);
@@ -80,6 +87,8 @@ public class CryptoMethods {
 
 		// Write the last encrypted bytes to the File
 		iostuff.writeChunkedOutput(encrypted);
+
+		percentageThread.stopThread(); // Stop the output of the percentage
 
 		logger.debug("", false);
 		logger.print("Finished!");
@@ -113,6 +122,8 @@ public class CryptoMethods {
 		// Should we exit?
 		boolean exit;
 
+		percentageThread.start();
+
 		logger.debug("Decrypting " + in.length + " Bytes ...", DEBUG_MODE.MODE_NORMAL);
 		logger.print("");
 		logger.debugln("Decrypting: ");
@@ -138,18 +149,13 @@ public class CryptoMethods {
 						}
 
 						/*
-						* all the percentage handeling
-						*/
+						 * all the percentage handeling
+						 */
 
-						percent = ((double) Math.round(((double) i / (double) in.length) * 10000)) / 100;
-
-
-
-						// Print the percent to the debug console
-						logger.percent(percent);
+						percentage = ((double) Math.round(((double) i / (double) in.length) * 10000)) / 100;
 
 						// Print at least 0, 25, 50, 75, 100%
-						int tmpPer = (int) Math.round(percent);
+						int tmpPer = (int) Math.round(percentage);
 						if (tmpPer == 0 || tmpPer == 50 || tmpPer == 75 || tmpPer == 100) logger.percent(tmpPer, true);
 
 						break;
@@ -162,6 +168,8 @@ public class CryptoMethods {
 			}
 
 		}
+
+		percentageThread.stopThread(); // Stop the output of the percentage
 
 		// Write the last decrypted bytes to the File
 		iostuff.writeChunkedOutput(output);
