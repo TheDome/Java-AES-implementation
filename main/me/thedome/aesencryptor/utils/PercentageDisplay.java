@@ -7,13 +7,13 @@ import main.me.thedome.aesencryptor.crypto.CryptoMethods;
  * Created on 03/2018.
  */
 
-public class percentageThread extends Thread {
+public class PercentageDisplay extends Thread {
 
 	private final Logger logger = Logger.getInstance();
-	boolean running; // Whether the thread is running
+	private boolean running; // Whether the thread is running
 	private CryptoMethods superClass;
 
-	public percentageThread(CryptoMethods superClass) {
+	public PercentageDisplay(CryptoMethods superClass) {
 		this.superClass = superClass;
 	}
 

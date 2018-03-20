@@ -3,7 +3,7 @@ package main.me.thedome.aesencryptor.crypto;
 import main.me.thedome.aesencryptor.classes.DEBUG_MODE;
 import main.me.thedome.aesencryptor.utils.IOUtils;
 import main.me.thedome.aesencryptor.utils.Logger;
-import main.me.thedome.aesencryptor.utils.percentageThread;
+import main.me.thedome.aesencryptor.utils.PercentageDisplay;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -15,12 +15,12 @@ import java.util.Random;
 public class CryptoMethods {
 
 	private final Logger logger = Logger.getInstance();
-	IOUtils iostuff;
+	private IOUtils iostuff;
 
 	// The percentage of the current operation
 	public double percentage;
 	// A thread to print the current percentage
-	private percentageThread percentageThread = new percentageThread(this);
+	private PercentageDisplay percentageThread = new PercentageDisplay(this);
 
 	public CryptoMethods() {
 		super();
