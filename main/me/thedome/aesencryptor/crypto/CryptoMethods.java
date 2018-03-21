@@ -15,10 +15,9 @@ import java.util.Random;
 public class CryptoMethods {
 
 	private final Logger logger = Logger.getInstance();
-	private IOUtils iostuff;
-
 	// The percentage of the current operation
-	public double percentage;
+	public double percentage = 1;
+	private IOUtils iostuff;
 	// A thread to print the current percentage
 	private PercentageDisplay percentageThread = new PercentageDisplay(this);
 
@@ -78,14 +77,14 @@ public class CryptoMethods {
 			encrypted[i++] = key[upper][lower];
 
 			// Compute the percentage rate of the process
-			percentage = (double) Math.round(((double) loopIters++ / (double) in.length) * 10000) / 100;
-
+			percentage = loopIters++ / (in.length * 1.0);
 
 			// Print at least 0, 25, 50, 75, 100%
-			int tmpPer = (int) Math.round(percentage);
-			if (tmpPer == 0 || tmpPer == 50 || tmpPer == 75 || tmpPer == 100) logger.percent(tmpPer, true);
-
-			logger.percent(percent);
+			double roundedPercentage = Math.rint(percentage * 10000) / 100;
+			int tmpPer = (int) Math.round(roundedPercentage * 100) / 100;
+			if (percentage % 0.25 == 0 && tmpPer <= 100 && tmpPer != 0) {
+				logger.percent(tmpPer, true);
+			}
 
 		}
 
@@ -159,8 +158,10 @@ public class CryptoMethods {
 						percentage = ((double) Math.round(((double) i / (double) in.length) * 10000)) / 100;
 
 						// Print at least 0, 25, 50, 75, 100%
-						int tmpPer = (int) Math.round(percentage);
-						if (tmpPer == 0 || tmpPer == 50 || tmpPer == 75 || tmpPer == 100) logger.percent(tmpPer, true);
+						int tmpPer = (int) Math.round(percentage * 100);
+						if (tmpPer == 0 || tmpPer == 25 || tmpPer == 50 || tmpPer == 75 || tmpPer == 100) {
+							logger.percent(tmpPer, true);
+						}
 
 						break;
 

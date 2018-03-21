@@ -10,7 +10,7 @@ import main.me.thedome.aesencryptor.crypto.CryptoMethods;
 public class PercentageDisplay extends Thread {
 
 	private final Logger logger = Logger.getInstance();
-	private boolean running; // Whether the thread is running
+	private boolean running = true; // Whether the thread is running
 	private CryptoMethods superClass;
 
 	public PercentageDisplay(CryptoMethods superClass) {
@@ -18,12 +18,20 @@ public class PercentageDisplay extends Thread {
 	}
 
 	@Override
+	public synchronized void start() {
+		super.start();
+		running = true;
+	}
+
+	@Override
 	public void run() {
 		while (running) {
 			// Log the percent while we are running
-			logger.percent(superClass.percentage);
+
+			int tmpPer = (int) Math.round(superClass.percentage * 10000) / 100;
+			logger.percent(tmpPer);
 			try {
-				Thread.sleep(200); // Sleep 200ms to prevent spamming
+				Thread.sleep(1000); // Sleep 200ms to prevent spamming
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
