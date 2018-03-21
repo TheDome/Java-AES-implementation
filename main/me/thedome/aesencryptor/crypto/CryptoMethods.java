@@ -44,8 +44,6 @@ public class CryptoMethods {
 		byte lower;
 		// The index
 		int i = 0;
-		// The value of the encrypted
-		double percent = 0;
 		// The iterations of the loop
 		int loopIters = 0;
 
@@ -119,8 +117,6 @@ public class CryptoMethods {
 		byte upper;
 		// The lower 4 bits
 		byte lower;
-		// The percent
-		double percent;
 
 		// Should we exit?
 		boolean exit;
@@ -155,13 +151,13 @@ public class CryptoMethods {
 						 * all the percentage handeling
 						 */
 
-						percentage = ((double) Math.round(((double) i / (double) in.length) * 10000)) / 100;
+						percentage = i / (in.length * 1.0);
 
-						// Print at least 0, 25, 50, 75, 100%
+						/*// Print at least 0, 25, 50, 75, 100%
 						int tmpPer = (int) Math.round(percentage * 100);
 						if (tmpPer == 0 || tmpPer == 25 || tmpPer == 50 || tmpPer == 75 || tmpPer == 100) {
 							logger.percent(tmpPer, true);
-						}
+						}*/
 
 						break;
 
