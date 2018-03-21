@@ -79,12 +79,12 @@ public class CryptoMethods {
 			// Compute the percentage rate of the process
 			percentage = loopIters++ / (in.length * 1.0);
 
-			// Print at least 0, 25, 50, 75, 100%
+			/*// Print at least 0, 25, 50, 75, 100%
 			double roundedPercentage = Math.rint(percentage * 10000) / 100;
 			int tmpPer = (int) Math.round(roundedPercentage * 100) / 100;
 			if (percentage % 0.25 == 0 && tmpPer <= 100 && tmpPer != 0) {
 				logger.percent(tmpPer, true);
-			}
+			}*/
 
 		}
 
